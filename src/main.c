@@ -100,18 +100,22 @@ int main(void)
 	GPIO_Init(GPIOA, &GPIOInitType);
 
 
+	//comment out the following line for much, much better implementation
+#define BAD_OLD_BORING_LED_BLINK
+
+#ifdef BAD_OLD_BORING_LED_BLINK
 	//Infinite loop
-	//Comment out this loop to get to much, much better implementation
-//	for(;;)
-//	{
-//		//Function to toggle the Pin we want
-//		GPIO_ToggleBits(GPIOA, GPIO_Pin_5);
-//
-//		//A very, very, very poor blocking loop.
-//		//(note you must be using the C standard gnu99 to declare variables in for loops and to use in line assembly)
-//		//Also ask Matt to show you fun trick about why counting instruction cycles doesn't work
-//		for(uint32_t i = 0; i<SystemCoreClock/6; i++) __NOP();
-//	}
+	for(;;)
+	{
+		//Function to toggle the Pin we want
+		GPIO_ToggleBits(GPIOA, GPIO_Pin_5);
+
+		//A very, very, very poor blocking loop.
+		//(note you must be using the C standard gnu99 to declare variables in for loops and to use in line assembly)
+		//Also ask Matt to show you fun trick about why counting instruction cycles doesn't work (relating to optimizations)
+		for(uint32_t i = 0; i<SystemCoreClock/6; i++) __NOP();
+	}
+#endif
 
 	//Enable clock for Timer2
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
