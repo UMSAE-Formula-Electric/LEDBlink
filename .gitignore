@@ -12,3 +12,5 @@
 *.lss
 *.map
 *.sym
+*.bin
+*.elf
