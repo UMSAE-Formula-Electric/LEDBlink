@@ -101,7 +101,7 @@ int main(void)
 
 
 	//comment out the following line for much, much better implementation
-#define BAD_OLD_BORING_LED_BLINK
+//#define BAD_OLD_BORING_LED_BLINK
 
 #ifdef BAD_OLD_BORING_LED_BLINK
 	//Infinite loop
