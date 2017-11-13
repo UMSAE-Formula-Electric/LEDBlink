@@ -93,27 +93,69 @@ int main(void)
 	//are not mapped to the pin number. Because of this though you can OR them together to initialize
 	//More than one pin on an output register at a time.
 	GPIOInitType.GPIO_Pin = GPIO_Pin_5;
+	//Laura testing my code
+
 
 	//This is the actual initialization function for the GPIOs. the first parameter is the GPIO bus
 	//The second parameter is a pointer to the struct we filled out
 	//(if you're in eclipse you can hover over the function for more information)
 	GPIO_Init(GPIOA, &GPIOInitType);
 
+	//this is where I start
+
+	//The LED is on GPIOA, which is connected to the AHB1 clock, so we must turn it on.
+	//We don't give a hoot about the configuration of the clock for GPIO, so all we have to do is turn it on
+	//This is the case for most things
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+
+	//Filling out the details of the GPIO Init struct
+
+	//For GPIO mode you have OUT, IN, AF (Alternate Function), and AN (analog mode),
+	GPIOInitType.GPIO_Mode = GPIO_Mode_IN;
+
+	//For output type you have PP(Push pull) or OD(open drain (switches between ground and high impedance))
+	GPIOInitType.GPIO_OType = GPIO_OType_PP;
+
+	//Choose between the internal pull ups or pull downs, more applicable to inputs
+	//(Not even sure if they work on output mode
+	GPIOInitType.GPIO_PuPd = GPIO_PuPd_UP;
+
+	//This is the speed the IO switches at. The higher the speed the more noise you will get
+	//Some applications have sensitive switching speeds, this is where this setting is most useful
+	GPIOInitType.GPIO_Speed = GPIO_Speed_100MHz;
+
+	//Finally this is the pin(s) you intend to use. You have to use the defines for them, as they
+	//are not mapped to the pin number. Because of this though you can OR them together to initialize
+	//More than one pin on an output register at a time.
+	GPIOInitType.GPIO_Pin = GPIO_Pin_13;
+
+
+	//This is the actual initialization function for the GPIOs. the first parameter is the GPIO bus
+	//The second parameter is a pointer to the struct we filled out
+	//(if you're in eclipse you can hover over the function for more information)
+	GPIO_Init(GPIOC, &GPIOInitType);
 
 	//comment out the following line for much, much better implementation
-//#define BAD_OLD_BORING_LED_BLINK
+#define BAD_OLD_BORING_LED_BLINK
 
 #ifdef BAD_OLD_BORING_LED_BLINK
 	//Infinite loop
 	for(;;)
 	{
-		//Function to toggle the Pin we want
-		GPIO_ToggleBits(GPIOA, GPIO_Pin_5);
+
+		if(GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_13)){
+			//Function to toggle the Pin we want
+			GPIO_ToggleBits(GPIOA, GPIO_Pin_5);
+		}
+		else{
+			//Function to reset Pin we want
+			GPIO_ResetBits(GPIOA, GPIO_Pin_5);
+		}
 
 		//A very, very, very poor blocking loop.
 		//(note you must be using the C standard gnu99 to declare variables in for loops and to use in line assembly)
 		//Also ask Matt to show you fun trick about why counting instruction cycles doesn't work (relating to optimizations)
-		for(uint32_t i = 0; i<SystemCoreClock/6; i++) __NOP();
+		for(uint32_t i = 0; i<SystemCoreClock/32; i++) __NOP();
 	}
 #endif
 
