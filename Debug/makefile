@@ -15,11 +15,11 @@ RM := rm -rf
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(strip $(C_DEPS)),)
--include $(C_DEPS)
-endif
 ifneq ($(strip $(S_UPPER_DEPS)),)
 -include $(S_UPPER_DEPS)
+endif
+ifneq ($(strip $(C_DEPS)),)
+-include $(C_DEPS)
 endif
 endif
 
@@ -31,10 +31,10 @@ endif
 all: LEDBlink.elf
 
 # Tool invocations
-LEDBlink.elf: $(OBJS) $(USER_OBJS)
+LEDBlink.elf: $(OBJS) $(USER_OBJS) C:\Users\laura\Documents\umsae\LEDBlink\LinkerScript.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -T"/home/cole/Desktop/temp/LEDBlink/LinkerScript.ld" -Wl,-Map=output.map -Wl,--gc-sections -lm -o "LEDBlink.elf" @"objects.list" $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -T"C:\Users\laura\Documents\umsae\LEDBlink\LinkerScript.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "LEDBlink.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

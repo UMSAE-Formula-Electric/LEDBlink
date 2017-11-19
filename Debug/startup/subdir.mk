@@ -15,7 +15,7 @@ startup/%.o: ../startup/%.s
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Assembler'
 	@echo $(PWD)
-	arm-none-eabi-as -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -I"/home/cole/Desktop/temp/LEDBlink/inc" -I"/home/cole/Desktop/temp/LEDBlink/CMSIS/core" -I"/home/cole/Desktop/temp/LEDBlink/CMSIS/device" -I"/home/cole/Desktop/temp/LEDBlink/StdPeriph_Driver/inc" -g -o "$@" "$<"
+	arm-none-eabi-as -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -I"C:/Users/laura/Documents/umsae/LEDBlink/inc" -I"C:/Users/laura/Documents/umsae/LEDBlink/CMSIS/core" -I"C:/Users/laura/Documents/umsae/LEDBlink/CMSIS/device" -I"C:/Users/laura/Documents/umsae/LEDBlink/StdPeriph_Driver/inc" -g -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

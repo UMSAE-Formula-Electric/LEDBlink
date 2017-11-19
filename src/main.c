@@ -65,6 +65,15 @@
  */
 int main(void)
 {
+	uint8_t inState1 = 0;
+	uint8_t inState2 = 0;
+	uint8_t inState3 = 0;
+
+	uint8_t outState1 = 1;
+	uint8_t outState2 = 0;
+	uint8_t outState3 = 0;
+
+
 	//Variable declaration for GPIO Initialization struct
 	GPIO_InitTypeDef GPIOInitType;
 
@@ -106,15 +115,42 @@ int main(void)
 	//The LED is on GPIOA, which is connected to the AHB1 clock, so we must turn it on.
 	//We don't give a hoot about the configuration of the clock for GPIO, so all we have to do is turn it on
 	//This is the case for most things
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	//RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 
 	//Filling out the details of the GPIO Init struct
-
+	//LAURAS INPUT
 	//For GPIO mode you have OUT, IN, AF (Alternate Function), and AN (analog mode),
 	GPIOInitType.GPIO_Mode = GPIO_Mode_IN;
 
 	//For output type you have PP(Push pull) or OD(open drain (switches between ground and high impedance))
 	GPIOInitType.GPIO_OType = GPIO_OType_PP;
+
+	//Choose between the internal pull ups or pull downs, more applicable to inputs
+	//(Not even sure if they work on output mode
+	GPIOInitType.GPIO_PuPd = GPIO_PuPd_DOWN;
+
+	//This is the speed the IO switches at. The higher the speed the more noise you will get
+	//Some applications have sensitive switching speeds, this is where this setting is most useful
+	GPIOInitType.GPIO_Speed = GPIO_Speed_100MHz;
+
+	//Finally this is the pin(s) you intend to use. You have to use the defines for them, as they
+	//are not mapped to the pin number. Because of this though you can OR them together to initialize
+	//More than one pin on an output register at a time.
+	GPIOInitType.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_6 | GPIO_Pin_7;
+
+
+	//This is the actual initialization function for the GPIOs. the first parameter is the GPIO bus
+	//The second parameter is a pointer to the struct we filled out
+	//(if you're in eclipse you can hover over the function for more information)
+	GPIO_Init(GPIOA, &GPIOInitType); // this is input for game
+
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	//For GPIO mode you have OUT, IN, AF (Alternate Function), and AN (analog mode),
+	GPIOInitType.GPIO_Mode = GPIO_Mode_OUT;
+
+	//For output type you have PP(Push pull) or OD(open drain (switches between ground and high impedance))
+	GPIOInitType.GPIO_OType = GPIO_OType_OD;
 
 	//Choose between the internal pull ups or pull downs, more applicable to inputs
 	//(Not even sure if they work on output mode
@@ -127,13 +163,13 @@ int main(void)
 	//Finally this is the pin(s) you intend to use. You have to use the defines for them, as they
 	//are not mapped to the pin number. Because of this though you can OR them together to initialize
 	//More than one pin on an output register at a time.
-	GPIOInitType.GPIO_Pin = GPIO_Pin_13;
+	GPIOInitType.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_3;
 
 
 	//This is the actual initialization function for the GPIOs. the first parameter is the GPIO bus
 	//The second parameter is a pointer to the struct we filled out
 	//(if you're in eclipse you can hover over the function for more information)
-	GPIO_Init(GPIOC, &GPIOInitType);
+	GPIO_Init(GPIOB, &GPIOInitType); // this is the output for our game
 
 	//comment out the following line for much, much better implementation
 #define BAD_OLD_BORING_LED_BLINK
@@ -143,14 +179,48 @@ int main(void)
 	for(;;)
 	{
 
-		if(GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_13)){
-			//Function to toggle the Pin we want
-			GPIO_ToggleBits(GPIOA, GPIO_Pin_5);
-		}
-		else{
-			//Function to reset Pin we want
+		outState1 = GPIO_ReadOutputDataBit(GPIOB, GPIO_Pin_4);
+		outState2 = GPIO_ReadOutputDataBit(GPIOB, GPIO_Pin_5);
+		outState3 = GPIO_ReadOutputDataBit(GPIOB, GPIO_Pin_3);
+
+		if(outState1 == 0 && outState2 == 0 && outState3 == 0){
+			GPIO_SetBits(GPIOB, GPIO_Pin_4);
 			GPIO_ResetBits(GPIOA, GPIO_Pin_5);
 		}
+
+		outState1 = GPIO_ReadOutputDataBit(GPIOB, GPIO_Pin_4);
+
+		inState1 = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6);
+		inState2 = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_7);
+		inState3 = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_9);
+
+
+		if(inState1 == 1){
+			GPIO_ResetBits(GPIOB, GPIO_Pin_4);
+			GPIO_SetBits(GPIOB, GPIO_Pin_5);
+		}
+		if(inState2 == 1){
+			GPIO_ResetBits(GPIOB, GPIO_Pin_5);
+			GPIO_SetBits(GPIOB, GPIO_Pin_3);
+		}
+		if(inState3 == 1){
+			GPIO_ResetBits(GPIOB, GPIO_Pin_3);
+			// turn on LED
+			GPIO_SetBits(GPIOA, GPIO_Pin_5);
+			for(uint32_t i = 0; i<SystemCoreClock/8; i++) __NOP();
+			// turn off LED
+			GPIO_ResetBits(GPIOA, GPIO_Pin_5);
+		}
+
+
+//		if(GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_13)){
+//			//Function to toggle the Pin we want
+//			GPIO_ToggleBits(GPIOA, GPIO_Pin_5);
+//		}
+//		else{
+//			//Function to reset Pin we want
+//			GPIO_ResetBits(GPIOA, GPIO_Pin_5);
+//		}
 
 		//A very, very, very poor blocking loop.
 		//(note you must be using the C standard gnu99 to declare variables in for loops and to use in line assembly)
