@@ -1,4 +1,17 @@
 /**
+ *
+ * ********************************************************************************************************
+ * I am so glad you find me, it means you finished the git tutorial I put
+ * in the intro document really well! Good job!
+ * If you saw this message, send me a email to zhenghleo@gmail.com to let me know. I will directly add you
+ * to the team and can come to our weekly work session.
+ * ********************************************************************************************************
+ */
+
+
+
+
+/**
   ******************************************************************************
   * @file    main.c
   * @author  Matthew Kehler for UMSAE Formula Electric
