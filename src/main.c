@@ -1,3 +1,6 @@
+
+#define ZE
+
 /**
   ******************************************************************************
   * @file    main.c
@@ -65,13 +68,32 @@
  */
 int main(void)
 {
+#ifdef RE
+#define PIN_NUM GPIO_Pin_5
+#define PIN_SOURCE GPIO_PinSource5
+#define RCC_PORT RCC_AHB1Periph_GPIOA
+#define PORT GPIOA
+#endif
+
+#ifdef ZE
+
+#define PIN_NUM GPIO_Pin_0
+#define RCC_PORT RCC_AHB1Periph_GPIOB
+#define PORT GPIOB
+#define PIN_SOURCE GPIO_PinSource0
+
+#endif
+
+
+
+
 	//Variable declaration for GPIO Initialization struct
 	GPIO_InitTypeDef GPIOInitType;
 
 	//The LED is on GPIOA, which is connected to the AHB1 clock, so we must turn it on.
 	//We don't give a hoot about the configuration of the clock for GPIO, so all we have to do is turn it on
 	//This is the case for most things
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_PORT, ENABLE);
 
 	//Filling out the details of the GPIO Init struct
 
@@ -92,28 +114,28 @@ int main(void)
 	//Finally this is the pin(s) you intend to use. You have to use the defines for them, as they
 	//are not mapped to the pin number. Because of this though you can OR them together to initialize
 	//More than one pin on an output register at a time.
-	GPIOInitType.GPIO_Pin = GPIO_Pin_5;
+	GPIOInitType.GPIO_Pin = PIN_NUM;
 
 	//This is the actual initialization function for the GPIOs. the first parameter is the GPIO bus
 	//The second parameter is a pointer to the struct we filled out
 	//(if you're in eclipse you can hover over the function for more information)
-	GPIO_Init(GPIOA, &GPIOInitType);
+	GPIO_Init(PORT, &GPIOInitType);
 
 
 	//comment out the following line for much, much better implementation
-//#define BAD_OLD_BORING_LED_BLINK
+#define BAD_OLD_BORING_LED_BLINK
 
 #ifdef BAD_OLD_BORING_LED_BLINK
 	//Infinite loop
 	for(;;)
 	{
 		//Function to toggle the Pin we want
-		GPIO_ToggleBits(GPIOA, GPIO_Pin_5);
+		GPIO_ToggleBits(PORT, PIN_NUM);
 
 		//A very, very, very poor blocking loop.
 		//(note you must be using the C standard gnu99 to declare variables in for loops and to use in line assembly)
 		//Also ask Matt to show you fun trick about why counting instruction cycles doesn't work (relating to optimizations)
-		for(uint32_t i = 0; i<SystemCoreClock/6; i++) __NOP();
+		for(uint32_t i = 0; i<SystemCoreClock/60; i++) __NOP();
 	}
 #endif
 
@@ -127,12 +149,15 @@ int main(void)
 	                                 //PCLK1 is APB1
 	                                 //PCLK2 is APB2
 
+
+	GPIO_PinAFConfig(PORT, PIN_SOURCE, GPIO_AF_TIM2);
 	//We now need the pin to be attached to the timer
 	GPIOInitType.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_Init(GPIOA, &GPIOInitType);
-
 	//Set the alternate function of pin 5 to timer 2
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_TIM2);
+
+	GPIO_Init(PORT, &GPIOInitType);
+
+
 
 	//Defining variable for the timer init struct
 	//(again, definition of variables after code only works in fancy versions of c like C99 or gnu99)
@@ -173,3 +198,7 @@ int main(void)
 	for(;;);
 
 }
+
+
+
+
